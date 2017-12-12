@@ -29,6 +29,8 @@
 #define DR_REG_RNG_BASE			0x3ff75144
 //#define UINT32_MAX 				4294967296 
 
+#define LEDS_NUMBER 12
+
 //#define LED_TOP			14   //Set GPIO 14 as PWM2B
 //#define LED_HIGH_0 		15   //Set GPIO 15 as PWM2A
 //#define LED_HIGH_1 		16   //Set GPIO 16 as PWM1B
@@ -118,31 +120,54 @@
 
 typedef struct PwmConfig
 {
+	uint8_t				gpio;
 	mcpwm_unit_t 		unit;
 	mcpwm_io_signals_t 	channel;
 	mcpwm_timer_t		timer;
 	mcpwm_operator_t 	operator;
 } PwmConfig;
 
+PwmConfig LedsArray[LEDS_NUMBER] = 
+{
+	{LED_TOP, LED_TOP_UNIT, LED_TOP_CHANNEL, LED_TOP_TIMER, LED_TOP_OPERATOR},
+	{LED_HIGH_0, LED_HIGH_0_UNIT, LED_HIGH_0_CHANNEL, LED_HIGH_0_TIMER, LED_HIGH_0_OPERATOR},
+	{LED_HIGH_1, LED_HIGH_1_UNIT, LED_HIGH_1_CHANNEL, LED_HIGH_1_TIMER, LED_HIGH_1_OPERATOR},
+	{LED_MID_0, LED_MID_0_UNIT, LED_MID_0_CHANNEL, LED_MID_0_TIMER, LED_MID_0_OPERATOR},
+	{LED_MID_1, LED_MID_1_UNIT, LED_MID_1_CHANNEL, LED_MID_1_TIMER, LED_MID_1_OPERATOR},
+	{LED_MID_2, LED_MID_2_UNIT, LED_MID_2_CHANNEL, LED_MID_2_TIMER, LED_MID_2_OPERATOR},
+	{LED_MID_3, LED_MID_3_UNIT, LED_MID_3_CHANNEL, LED_MID_3_TIMER, LED_MID_3_OPERATOR},
+	{LED_LOW_0, LED_LOW_0_UNIT, LED_LOW_0_CHANNEL, LED_LOW_0_TIMER, LED_LOW_0_OPERATOR},
+	{LED_LOW_1, LED_LOW_1_UNIT, LED_LOW_1_CHANNEL, LED_LOW_1_TIMER, LED_LOW_1_OPERATOR},
+	{LED_LOW_2, LED_LOW_2_UNIT, LED_LOW_2_CHANNEL, LED_LOW_2_TIMER, LED_LOW_2_OPERATOR},
+	{LED_LOW_3, LED_LOW_3_UNIT, LED_LOW_3_CHANNEL, LED_LOW_3_TIMER, LED_LOW_3_OPERATOR},
+	{LED_LOW_4, LED_LOW_4_UNIT, LED_LOW_4_CHANNEL, LED_LOW_4_TIMER, LED_LOW_4_OPERATOR}
+};
 
 static void gpio_initialize()
 {
     printf("initializing mcpwm gpio...\n");
-    mcpwm_gpio_init(LED_TOP_UNIT, LED_TOP_CHANNEL, LED_TOP);
 	
-    mcpwm_gpio_init(LED_HIGH_0_UNIT, LED_HIGH_0_CHANNEL, LED_HIGH_0);
-    mcpwm_gpio_init(LED_HIGH_1_UNIT, LED_HIGH_1_CHANNEL, LED_HIGH_1);
+	for(int i = 0; i < LEDS_NUMBER; i++)
+	{
+		mcpwm_gpio_init(LedsArray[i].unit, LedsArray[i].channel, LedsArray[i].gpio);
+	}
 	
-    mcpwm_gpio_init(LED_MID_0_UNIT, LED_MID_0_CHANNEL, LED_MID_0);
-    mcpwm_gpio_init(LED_MID_1_UNIT, LED_MID_1_CHANNEL, LED_MID_1);
-    mcpwm_gpio_init(LED_MID_2_UNIT, LED_MID_2_CHANNEL, LED_MID_2);
-    mcpwm_gpio_init(LED_MID_3_UNIT, LED_MID_3_CHANNEL, LED_MID_3);
 	
-    mcpwm_gpio_init(LED_LOW_0_UNIT, LED_LOW_0_CHANNEL, LED_LOW_0);
-    mcpwm_gpio_init(LED_LOW_1_UNIT, LED_LOW_1_CHANNEL, LED_LOW_1);
-    mcpwm_gpio_init(LED_LOW_2_UNIT, LED_LOW_2_CHANNEL, LED_LOW_2);
-    mcpwm_gpio_init(LED_LOW_3_UNIT, LED_LOW_3_CHANNEL, LED_LOW_3);
-    mcpwm_gpio_init(LED_LOW_4_UNIT, LED_LOW_4_CHANNEL, LED_LOW_4);
+    //mcpwm_gpio_init(LED_TOP_UNIT, LED_TOP_CHANNEL, LED_TOP);
+	//
+    //mcpwm_gpio_init(LED_HIGH_0_UNIT, LED_HIGH_0_CHANNEL, LED_HIGH_0);
+    //mcpwm_gpio_init(LED_HIGH_1_UNIT, LED_HIGH_1_CHANNEL, LED_HIGH_1);
+	//
+    //mcpwm_gpio_init(LED_MID_0_UNIT, LED_MID_0_CHANNEL, LED_MID_0);
+    //mcpwm_gpio_init(LED_MID_1_UNIT, LED_MID_1_CHANNEL, LED_MID_1);
+    //mcpwm_gpio_init(LED_MID_2_UNIT, LED_MID_2_CHANNEL, LED_MID_2);
+    //mcpwm_gpio_init(LED_MID_3_UNIT, LED_MID_3_CHANNEL, LED_MID_3);
+	//
+    //mcpwm_gpio_init(LED_LOW_0_UNIT, LED_LOW_0_CHANNEL, LED_LOW_0);
+    //mcpwm_gpio_init(LED_LOW_1_UNIT, LED_LOW_1_CHANNEL, LED_LOW_1);
+    //mcpwm_gpio_init(LED_LOW_2_UNIT, LED_LOW_2_CHANNEL, LED_LOW_2);
+    //mcpwm_gpio_init(LED_LOW_3_UNIT, LED_LOW_3_CHANNEL, LED_LOW_3);
+    //mcpwm_gpio_init(LED_LOW_4_UNIT, LED_LOW_4_CHANNEL, LED_LOW_4);
 	
     printf("initializing mcpwm gpio COMPLETED\n");
 /*	
@@ -215,11 +240,7 @@ void task_alive(void *arg)
         gpio_set_level(GPIO_NUM_12, 1); //Set high
         vTaskDelay(1000);             //delay of 10ms
         gpio_set_level(GPIO_NUM_12, 0); //Set low
-        vTaskDelay(1000);         //delay of 10ms
-		
-		uint32_t randomNumber = getRandomNumber(100);
-		printf("Random number %zu\n", randomNumber);
-		
+        vTaskDelay(1000);         //delay of 10ms		
     }
 }
 
@@ -258,27 +279,61 @@ void task_blinker(void *arg)
 void task_LED(void *arg)
 {
 	PwmConfig myCfg = *(PwmConfig *) arg;
-	printf("TASKUS %d", myCfg.operator);
 	
-	vTaskDelete(NULL);
+	float duty = 0;
+	float step = 0.01 + getRandomNumber(0.1);
+	
+	while(1)
+	{
+		if (duty <=0)
+		{
+			duty = 100.0;
+			step = 0.01 + getRandomNumber(0.1);
+			printf("Loop %2.2f %2.2f \n", duty, step);
+		}
+		else
+		{
+			duty -= step;
+		}
+		mcpwm_set_duty(myCfg.unit, myCfg.timer, myCfg.operator, duty);
+		vTaskDelay(1);
+	}
+	
+    vTaskDelete(NULL);
+	
+	
+	//
+	//
+	//while (1)
+	//{
+	//	printf("TASKUS %d %d %d %d \n", myCfg.unit, myCfg.channel, myCfg.gpio, myCfg.operator);
+	//	vTaskDelay(1000);
+	//}
+	//vTaskDelete(NULL);
 	
 }
 
 void createLedsTasks()
 {	
-	PwmConfig cfg;
-	
-	cfg.unit = LED_TOP_UNIT;
-	cfg.channel = LED_TOP_CHANNEL;
-	cfg.timer = LED_TOP_TIMER;
-	cfg.operator = LED_TOP_OPERATOR;
-	xTaskCreate(task_LED, "Test task", 4096, &cfg, 5, NULL);
-	
-	cfg.unit = LED_HIGH_0_UNIT;
-	cfg.channel = LED_HIGH_0_CHANNEL;
-	cfg.timer = LED_HIGH_0_TIMER;
-	cfg.operator = LED_HIGH_0_OPERATOR;
-	xTaskCreate(task_LED, "Test task 2", 4096, &cfg, 5, NULL);
+
+	for(int i = 0; i < LEDS_NUMBER; i++)
+	{
+		xTaskCreate(task_LED, "LED TASK", 4096, &LedsArray[i], 5, NULL);
+	}
+
+	//PwmConfig cfg;
+	//
+	//cfg.unit = LED_TOP_UNIT;
+	//cfg.channel = LED_TOP_CHANNEL;
+	//cfg.timer = LED_TOP_TIMER;
+	//cfg.operator = LED_TOP_OPERATOR;
+	//xTaskCreate(task_LED, "Test task", 4096, &LedsArray[0], 5, NULL);
+	//
+	//cfg.unit = LED_HIGH_0_UNIT;
+	//cfg.channel = LED_HIGH_0_CHANNEL;
+	//cfg.timer = LED_HIGH_0_TIMER;
+	//cfg.operator = LED_HIGH_0_OPERATOR;
+	//xTaskCreate(task_LED, "Test task 2", 4096, &LedsArray[1], 5, NULL);
 	
 }
 
@@ -329,12 +384,12 @@ void app_main()
 	
 	gpio_initialize();
 	pwmInitialize();
+	xTaskCreate(task_alive, "gpio_test_signal", 4096, NULL, 5, NULL); //comment if you don't want to use capture module
 	
     //cap_queue = xQueueCreate(1, sizeof(capture)); //comment if you don't want to use capture module
     //xTaskCreate(disp_captured_signal, "mcpwm_config", 4096, NULL, 5, NULL);  //comment if you don't want to use capture module
 	createLedsTasks();
-    xTaskCreate(task_alive, "gpio_test_signal", 4096, NULL, 5, NULL); //comment if you don't want to use capture module
-	xTaskCreate(task_blinker, "task blinker", 4096, NULL, 5, NULL);
-	xTaskCreate(task_LED_Top, "task blinker", 4096, NULL, 5, NULL);
+    //xTaskCreate(task_blinker, "task blinker", 4096, NULL, 5, NULL);
+	//xTaskCreate(task_LED_Top, "task blinker", 4096, NULL, 5, NULL);
     //xTaskCreate(mcpwm_example_config, "mcpwm_example_config", 4096, NULL, 5, NULL);
 }

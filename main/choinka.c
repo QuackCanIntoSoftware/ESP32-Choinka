@@ -186,14 +186,15 @@ void task_LED(void *arg)
 	PwmConfig myCfg = *(PwmConfig *) arg;
 	
 	float duty = 0;
-	float step = 0.01 + getRandomNumber(0.1);
+	float step = 0.2 + getRandomNumber(2);
 	
 	while(1)
 	{
 		if (duty <=0)
 		{
 			duty = 100.0;
-			step = 0.01 + getRandomNumber(0.1);
+			//step = 0.01 + getRandomNumber(0.1);
+			step = 0.2 + getRandomNumber(2);
 			printf("Loop %2.2f %2.2f \n", duty, step);
 		}
 		else
@@ -201,7 +202,7 @@ void task_LED(void *arg)
 			duty -= step;
 		}
 		mcpwm_set_duty(myCfg.unit, myCfg.timer, myCfg.operator, duty);
-		vTaskDelay(1);
+		vTaskDelay(20);
 	}
 	
     vTaskDelete(NULL);	

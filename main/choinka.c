@@ -21,6 +21,7 @@
 #include "esp_attr.h"
 #include "soc/rtc.h"
 #include "driver/mcpwm.h"
+#include "driver/gpio.h"
 #include "soc/mcpwm_reg.h"
 #include "soc/mcpwm_struct.h"
 
@@ -170,7 +171,7 @@ void task_alive(void *arg)
 	gpio_config_t gp;
     gp.intr_type = GPIO_INTR_DISABLE;
     gp.mode = GPIO_MODE_OUTPUT;
-    gp.pin_bit_mask = GPIO_SEL_12;
+    gp.pin_bit_mask = GPIO_NUM_12;
     gpio_config(&gp);
     while (1) {
         //here the period of test signal is 20ms
